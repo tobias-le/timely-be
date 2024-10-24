@@ -3,7 +3,6 @@ package cz.cvut.fel.pm2.timely_be.model;
 import cz.cvut.fel.pm2.timely_be.enums.EmploymentStatus;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
 
 import java.util.List;
 
@@ -16,7 +15,7 @@ public class Employee {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long employeeId;
 
     private String name;
 

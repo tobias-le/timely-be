@@ -1,7 +1,7 @@
 package cz.cvut.fel.pm2.timely_be.rest;
 
 import cz.cvut.fel.pm2.timely_be.dto.EmployeeDto;
-import cz.cvut.fel.pm2.timely_be.mapper.EmployeeMapper;
+import cz.cvut.fel.pm2.timely_be.mapper.MapperUtils;
 import cz.cvut.fel.pm2.timely_be.model.Employee;
 import cz.cvut.fel.pm2.timely_be.service.EmployeeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,7 +40,7 @@ public class EmployeeController {
 
         // Convert Employee entities to EmployeeDto using EmployeeMapper
         List<EmployeeDto> employeeDtoList = employeePage.getContent().stream()
-                .map(EmployeeMapper::toDto)
+                .map(MapperUtils::toDto)
                 .collect(Collectors.toList());
 
         // Return a new Page<EmployeeDto> based on the mapped list and pageable information
