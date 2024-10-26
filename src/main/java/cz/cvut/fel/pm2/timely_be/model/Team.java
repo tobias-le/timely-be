@@ -6,13 +6,15 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.List;
 
+import static jakarta.persistence.GenerationType.IDENTITY;
+
 @Entity
 @Table(name = "teams")
 @Data
 public class Team {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
     private String name;
@@ -21,8 +23,7 @@ public class Team {
     @JoinColumn(name = "manager_id", referencedColumnName = "employeeId")
     private Employee manager;
 
-    @OneToMany
-    @JoinColumn(name = "team_id")
+    @OneToMany(mappedBy = "team")  // `mappedBy` points to `team` in Employee
     private List<Employee> members;
 
     public List<Employee> getMembers() {

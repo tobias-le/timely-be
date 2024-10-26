@@ -7,6 +7,7 @@ import lombok.Data;
 import java.util.List;
 
 import static jakarta.persistence.EnumType.STRING;
+import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(name = "employees")
@@ -14,7 +15,7 @@ import static jakarta.persistence.EnumType.STRING;
 public class Employee {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = IDENTITY)
     private Long employeeId;
 
     private String name;
@@ -28,6 +29,10 @@ public class Employee {
 
     private String phoneNumber;
 
-    @ElementCollection
-    private List<String> currentProjects;
+    @ManyToMany
+    private List<Project> currentProjects;
+
+    @ManyToOne
+    @JoinColumn(name = "team_id")
+    private Team team;
 }

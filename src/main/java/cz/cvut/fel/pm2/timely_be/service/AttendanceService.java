@@ -1,10 +1,14 @@
 package cz.cvut.fel.pm2.timely_be.service;
 
+import cz.cvut.fel.pm2.timely_be.dto.AttendanceRecordDto;
 import cz.cvut.fel.pm2.timely_be.dto.AttendanceSummaryDTO;
+import cz.cvut.fel.pm2.timely_be.enums.EmploymentStatus;
+import cz.cvut.fel.pm2.timely_be.mapper.MapperUtils;
 import cz.cvut.fel.pm2.timely_be.model.AttendanceRecord;
 import cz.cvut.fel.pm2.timely_be.model.Employee;
 import cz.cvut.fel.pm2.timely_be.model.Team;
 import cz.cvut.fel.pm2.timely_be.repository.AttendanceRecordRepository;
+import cz.cvut.fel.pm2.timely_be.repository.EmployeeRepository;
 import cz.cvut.fel.pm2.timely_be.repository.TeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,8 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static java.time.DayOfWeek.FRIDAY;
-import static java.time.DayOfWeek.MONDAY;
+import static java.time.DayOfWeek.*;
 import static java.time.LocalDate.now;
 
 @Service
@@ -25,29 +28,41 @@ public class AttendanceService {
 
     private final AttendanceRecordRepository attendanceRecordRepository;
     private final TeamRepository teamRepository;
+    private final EmployeeRepository employeeRepository;
 
     @Autowired
-    public AttendanceService(AttendanceRecordRepository attendanceRecordRepository, TeamRepository teamRepository) {
+    public AttendanceService(AttendanceRecordRepository attendanceRecordRepository, TeamRepository teamRepository, EmployeeRepository employeeRepository) {
         this.attendanceRecordRepository = attendanceRecordRepository;
         this.teamRepository = teamRepository;
+        this.employeeRepository = employeeRepository;
     }
 
-    public List<AttendanceRecord> getAttendanceRecordsByTeamSinceStartOfWeek(Long teamId) {
+    public List<AttendanceRecordDto> getAttendanceRecordsByTeamSinceStartOfWeek(Long teamId) {
         LocalDate startOfWeek = getStartOfWeek();
         LocalDate today = getToday();
 
         // Fetch attendance records for the team from the start of the week until today
-        return attendanceRecordRepository.findByTeamIdAndDateBetween(teamId, startOfWeek, today);
+        return attendanceRecordRepository
+                .findByTeamIdAndDateBetween(teamId, startOfWeek, today)
+                .stream()
+                .map(MapperUtils::toDto)
+                .collect(Collectors.toList());
     }
 
     // Method to find attendance records for a specific member
-    public List<AttendanceRecord> getAttendanceRecordsByMember(Employee member) {
-        return attendanceRecordRepository.findByMember(member);
+    public List<AttendanceRecordDto> getAttendanceRecordsByMember(Employee member) {
+        return attendanceRecordRepository
+                .findByMember(member)
+                .stream()
+                .map(MapperUtils::toDto)
+                .collect(Collectors.toList());
     }
 
     // Method to find a specific attendance record by its ID
-    public Optional<AttendanceRecord> getAttendanceRecordById(Long attendanceId) {
-        return attendanceRecordRepository.findById(attendanceId);
+    public Optional<AttendanceRecordDto> getAttendanceRecordById(Long attendanceId) {
+        return attendanceRecordRepository
+                .findById(attendanceId)
+                .map(MapperUtils::toDto);
     }
 
     public AttendanceSummaryDTO getCurrentWeekAttendancePerformance(Long teamId) {
@@ -84,7 +99,7 @@ public class AttendanceService {
 
         // Calculate average hours per day and attendance rate
         int totalDaysInRange = (int) (Duration.between(startOfWeek.atStartOfDay(), endOfWeek.atStartOfDay()).toDays()) + 1;
-        double averageHoursPerDay = totalHours / (double) totalDaysInRange;
+        double averageHoursPerDay = (double) totalHours / 5;
         double attendanceRate;
         if (!team.getMembers().isEmpty()) {
             attendanceRate = totalDaysPresent / (double) (team.getMembers().size() * totalDaysInRange) * 100;
@@ -96,9 +111,19 @@ public class AttendanceService {
         return new AttendanceSummaryDTO(
                 team.getName(),
                 totalHours,
+                getExpectedHoursForTeamPerWeek(teamId),
                 averageHoursPerDay,
                 attendanceRate
         );
+    }
+
+    private long getExpectedHoursForTeamPerWeek(Long teamId) {
+        var employees = employeeRepository.findByTeamId(teamId);
+        return employees.stream()
+                .map(Employee::getEmploymentStatus)
+                .map(EmploymentStatus::getExpectedHoursPerDay)
+                .map(hours -> hours * 5)
+                .reduce(Long::sum).orElse(0L);
     }
 
     private LocalDate getStartOfWeek() {
@@ -108,7 +133,7 @@ public class AttendanceService {
 
     private LocalDate getEndOfWeek() {
         var today = now();
-        return today.with(FRIDAY);
+        return today.with(SUNDAY);
     }
 
     private LocalDate getToday() {

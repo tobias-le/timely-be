@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,8 +34,8 @@ public class EmployeeController {
 
     @GetMapping
     @Operation(summary = "Get all employees", description = "Returns a list of all employees")
-    public Page<EmployeeDto> getEmployees(@RequestParam(defaultValue = "0") int page,
-                                          @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<Page<EmployeeDto>> getEmployees(@RequestParam(defaultValue = "0") int page,
+                                                         @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Employee> employeePage = employeeService.getEmployees(pageable);
 
@@ -44,6 +45,7 @@ public class EmployeeController {
                 .collect(Collectors.toList());
 
         // Return a new Page<EmployeeDto> based on the mapped list and pageable information
-        return new PageImpl<>(employeeDtoList, pageable, employeePage.getTotalElements());
+        var result =  new PageImpl<>(employeeDtoList, pageable, employeePage.getTotalElements());
+        return ResponseEntity.ok(result);
     }
 }
