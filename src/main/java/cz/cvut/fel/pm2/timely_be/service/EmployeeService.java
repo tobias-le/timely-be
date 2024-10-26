@@ -16,7 +16,7 @@ public class EmployeeService {
         this.employeeRepository = employeeRepository;
     }
 
-    public Page<Employee> getEmployees(Pageable pageable) {
-        return employeeRepository.findAll(pageable);
+    public Page<Employee> getEmployees(Pageable pageable, long teamId) {
+        return employeeRepository.findByTeamId(pageable, teamId);
     }
 }

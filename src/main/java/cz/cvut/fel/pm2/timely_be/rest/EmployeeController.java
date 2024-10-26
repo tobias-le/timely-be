@@ -33,11 +33,12 @@ public class EmployeeController {
     }
 
     @GetMapping
-    @Operation(summary = "Get all employees", description = "Returns a list of all employees")
+    @Operation(summary = "Get all employees in teams", description = "Get all employees in teams with pagination")
     public ResponseEntity<Page<EmployeeDto>> getEmployees(@RequestParam(defaultValue = "0") int page,
-                                                         @RequestParam(defaultValue = "10") int size) {
+                                                         @RequestParam(defaultValue = "10") int size,
+                                                          @RequestParam long teamId) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Employee> employeePage = employeeService.getEmployees(pageable);
+        Page<Employee> employeePage = employeeService.getEmployees(pageable, teamId);
 
         // Convert Employee entities to EmployeeDto using EmployeeMapper
         List<EmployeeDto> employeeDtoList = employeePage.getContent().stream()
