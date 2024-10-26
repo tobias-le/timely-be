@@ -1,8 +1,11 @@
 package cz.cvut.fel.pm2.timely_be.mapper;
 
+import cz.cvut.fel.pm2.timely_be.dto.AttendanceRecordDto;
 import cz.cvut.fel.pm2.timely_be.dto.EmployeeDto;
 import cz.cvut.fel.pm2.timely_be.dto.TeamDTO;
+import cz.cvut.fel.pm2.timely_be.model.AttendanceRecord;
 import cz.cvut.fel.pm2.timely_be.model.Employee;
+import cz.cvut.fel.pm2.timely_be.model.Project;
 import cz.cvut.fel.pm2.timely_be.model.Team;
 
 import java.util.stream.Collectors;
@@ -15,7 +18,7 @@ public class MapperUtils {
         employeeDto.setEmploymentStatus(employee.getEmploymentStatus().name());
         employeeDto.setEmail(employee.getEmail());
         employeeDto.setPhoneNumber(employee.getPhoneNumber());
-        employeeDto.setCurrentProjects(employee.getCurrentProjects());
+        employeeDto.setCurrentProjects(employee.getCurrentProjects().stream().map(Project::getName).collect(Collectors.toList()));
         return employeeDto;
     }
 
@@ -26,5 +29,15 @@ public class MapperUtils {
         teamDTO.setManager(team.getManager().getName());
         teamDTO.setMembers(team.getMembers().stream().map(Employee::getName).collect(Collectors.toList()));
         return teamDTO;
+    }
+
+    public static AttendanceRecordDto toDto(AttendanceRecord attendance) {
+        AttendanceRecordDto attendanceRecordDto = new AttendanceRecordDto();
+        attendanceRecordDto.setMember(attendance.getMember().getName());
+        attendanceRecordDto.setDate(attendance.getDate());
+        attendanceRecordDto.setClockInTime(attendance.getClockInTime());
+        attendanceRecordDto.setClockOutTime(attendance.getClockOutTime());
+        attendanceRecordDto.setProject(attendance.getProject().getName());
+        return attendanceRecordDto;
     }
 }

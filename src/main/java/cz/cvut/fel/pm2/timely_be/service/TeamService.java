@@ -1,4 +1,4 @@
-package cz.cvut.fel.pm2.timely_be.model;
+package cz.cvut.fel.pm2.timely_be.service;
 
 import cz.cvut.fel.pm2.timely_be.dto.TeamDTO;
 import cz.cvut.fel.pm2.timely_be.mapper.MapperUtils;

@@ -5,18 +5,16 @@ import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import static jakarta.persistence.GenerationType.IDENTITY;
+
 @Entity
 @Table(name = "attendance_records")
 @Data
 public class AttendanceRecord {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = IDENTITY)
     private Long attendanceId;
-
-    @ManyToOne
-    @JoinColumn(name = "team_id", nullable = false)
-    private Team team;
 
     @ManyToOne
     @JoinColumn(name = "member_id", nullable = false)
@@ -27,4 +25,7 @@ public class AttendanceRecord {
     private LocalDateTime clockInTime;
 
     private LocalDateTime clockOutTime;
+
+    @ManyToOne
+    private Project project;
 }

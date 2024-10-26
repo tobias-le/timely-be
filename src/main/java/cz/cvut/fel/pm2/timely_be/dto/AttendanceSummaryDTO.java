@@ -8,6 +8,7 @@ import lombok.Data;
 public class AttendanceSummaryDTO {
     private String teamName;
     private long totalHours;
+    private long expectedHours;
     private double averageHoursPerDay;
     private double attendanceRate;
 }
